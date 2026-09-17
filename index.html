@@ -3923,6 +3923,136 @@
    Desktop behavior intentionally untouched.
    ========================================================= */
 @media (max-width:768px){
+  /* =====================================================
+     MOBILE POLISH v4 — CLIENT RAIL / EXPERIENCE / TOUCH LIFT
+     Desktop remains untouched.
+     ===================================================== */
+
+  /* Client rail: exact same interaction language as Featured Projects. */
+  #clientwork .client-stage{
+    scroll-snap-type:x mandatory!important;
+    scroll-snap-stop:always!important;
+    scroll-behavior:smooth!important;
+    overscroll-behavior-x:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-padding-inline:calc((100% - 88vw)/2 + 18px)!important;
+  }
+  #clientwork .client-card{
+    scroll-snap-align:center!important;
+  }
+  #clientwork .client-dots{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:5px!important;
+    width:max-content!important;
+    min-width:0!important;
+    margin:12px auto 0!important;
+    height:6px!important;
+  }
+  #clientwork .client-dots i{
+    flex:0 0 24px!important;
+    width:24px!important;
+    height:4px!important;
+    display:block!important;
+    opacity:1!important;
+    border:0!important;
+    border-radius:999px!important;
+    background:rgba(255,255,255,.13)!important;
+    cursor:pointer!important;
+    transform:none!important;
+    transition:flex-basis .32s cubic-bezier(.16,1,.3,1),background .32s ease,box-shadow .32s ease!important;
+  }
+  #clientwork .client-dots i.a{
+    flex-basis:38px!important;
+    width:38px!important;
+    background:linear-gradient(90deg,var(--purple-l),var(--accent-cyan))!important;
+    box-shadow:0 0 12px rgba(167,139,250,.34)!important;
+  }
+  #clientwork .client-dots i:active{
+    transform:scaleY(1.5)!important;
+  }
+
+  /* The client screenshot fills the visual completely on mobile. */
+  #clientwork .client-visual{
+    width:100%!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  #clientwork .client-visual img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:top center!important;
+    padding:0!important;
+    margin:0!important;
+    display:block!important;
+  }
+
+  /* Experience enters like the final CTA: glow + soft rise, mobile only. */
+  #experience .ecard{
+    opacity:.94;
+    transform:translateY(14px) scale(.985);
+    transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1),border-color .35s ease,box-shadow .35s ease!important;
+    isolation:isolate;
+  }
+  #experience .ecard.mobile-experience-in{
+    opacity:1;
+    transform:translateY(0) scale(1);
+    border-color:rgba(167,139,250,.28)!important;
+    box-shadow:0 18px 48px rgba(0,0,0,.42),0 0 30px rgba(139,92,246,.10)!important;
+  }
+  #experience .ecard::before{
+    content:"";
+    position:absolute;
+    width:230px;height:230px;
+    right:-110px;top:-120px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(139,92,246,.20),transparent 68%);
+    filter:blur(10px);
+    opacity:0;
+    z-index:-1;
+    transition:opacity .7s ease;
+    pointer-events:none;
+  }
+  #experience .ecard.mobile-experience-in::before{
+    opacity:1;
+  }
+  #experience .ecard::after{
+    content:"";
+    position:absolute;
+    top:0;left:-120%;
+    width:60%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.075),transparent);
+    transform:skewX(-18deg);
+    opacity:0;
+    pointer-events:none;
+    z-index:3;
+  }
+  #experience .ecard.mobile-experience-in::after{
+    opacity:1;
+    animation:experienceShine 1.15s .18s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  @keyframes experienceShine{
+    from{left:-120%}
+    to{left:135%}
+  }
+
+  /* Touch lift: same visual response as the desktop hover state. */
+  .mobile-card-active{
+    transform:translateY(-6px) scale(1.012)!important;
+    border-color:var(--purple-l)!important;
+    box-shadow:0 15px 35px rgba(0,0,0,.42),0 0 22px rgba(139,92,246,.20)!important;
+  }
+  #skills .skill-panel,
+  #education .educard,
+  #certs .certc{
+    transition:transform .28s cubic-bezier(.16,1,.3,1),border-color .28s ease,box-shadow .28s ease!important;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+
   /* The metrics row is not a swipe carousel; remove the helper label
      so it never appears over the 200+ DSA metric. */
   .metrics-track::after{
@@ -5214,6 +5344,88 @@ Available for full-time MERN Stack and Software Engineer roles, as well as freel
         );
       })();
     
+
+/* MOBILE-ONLY POLISH v4 */
+(function(){
+  const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+  if(!isMobile()) return;
+
+  /* EXPERIENCE: reveal + one-time CTA-style shine when the card enters. */
+  const experienceCard=document.querySelector('#experience .ecard');
+  if(experienceCard && 'IntersectionObserver' in window){
+    const expObserver=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          experienceCard.classList.add('mobile-experience-in');
+          expObserver.unobserve(experienceCard);
+        }
+      });
+    },{threshold:.25,rootMargin:'0px 0px -8% 0px'});
+    expObserver.observe(experienceCard);
+  }
+
+  /* Touch/click lift for Skills, Education and Certifications cards. */
+  const touchCards=[
+    ...document.querySelectorAll('#skills .skill-panel'),
+    ...document.querySelectorAll('#education .educard'),
+    ...document.querySelectorAll('#certs .certc')
+  ];
+  touchCards.forEach(card=>{
+    card.addEventListener('click',()=>{
+      card.classList.toggle('mobile-card-active');
+    });
+  });
+
+  /* Client rail: deterministic index from the centered snap card. */
+  const stage=document.getElementById('clientStage');
+  const cards=[...document.querySelectorAll('#clientwork .client-card')];
+  const dots=[...document.querySelectorAll('#clientDots i')];
+  if(stage && cards.length && dots.length){
+    let raf=0, settleTimer=0;
+    const setActive=(index)=>{
+      const safe=Math.max(0,Math.min(cards.length-1,index));
+      dots.forEach((dot,i)=>dot.classList.toggle('a',i===safe));
+      cards.forEach((card,i)=>card.classList.toggle('mobile-active',i===safe));
+    };
+    const nearestIndex=()=>{
+      const sr=stage.getBoundingClientRect();
+      const center=sr.left+sr.width/2;
+      let best=0,bestDist=Infinity;
+      cards.forEach((card,i)=>{
+        const r=card.getBoundingClientRect();
+        const dist=Math.abs((r.left+r.width/2)-center);
+        if(dist<bestDist){bestDist=dist;best=i;}
+      });
+      return best;
+    };
+    const sync=()=>{
+      cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(()=>setActive(nearestIndex()));
+    };
+    const settle=()=>{
+      clearTimeout(settleTimer);
+      settleTimer=setTimeout(sync,55);
+    };
+    stage.addEventListener('scroll',sync,{passive:true});
+    stage.addEventListener('touchend',settle,{passive:true});
+    stage.addEventListener('pointerup',settle,{passive:true});
+    stage.addEventListener('scrollend',sync,{passive:true});
+    window.addEventListener('resize',sync,{passive:true});
+
+    dots.forEach((dot,index)=>{
+      const go=()=>{
+        cards[index]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+        setActive(index);
+      };
+      dot.addEventListener('click',go);
+      dot.addEventListener('keydown',e=>{
+        if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}
+      });
+    });
+    setActive(0);
+    requestAnimationFrame(sync);
+  }
+})();
 
 /* MOBILE-ONLY INTERACTION ENHANCEMENTS */
 (function(){
